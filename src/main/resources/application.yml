@@ -1,0 +1,7 @@
+click:
+  uz:
+    const:
+      min: 1000
+      max: 50000000
+      commission: 3
+      cashback: 1
