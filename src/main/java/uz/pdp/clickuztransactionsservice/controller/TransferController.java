@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class TransferController {
     private final TransferService transferService;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id){
         return ResponseEntity.ok(transferService.getById(id));
     }
