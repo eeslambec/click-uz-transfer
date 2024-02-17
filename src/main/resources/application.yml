@@ -1,7 +1,25 @@
-click:
-  uz:
-    const:
-      min: 1000
-      max: 50000000
-      commission: 3
-      cashback: 1
+server:
+  port: 4545
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: ismoil_0709
+    url: jdbc:postgresql://localhost:5432/click_uz_transfers
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+#  application:
+#    name: click-uz-transfers
+  config:
+    import: optional:configserver:http://localhost:8101
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8741/eureka
+

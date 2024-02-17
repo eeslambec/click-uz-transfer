@@ -18,10 +18,8 @@ public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Transient
-    private Card senderCard;
-    @Transient
-    private Card receiverCard;
+    private Long senderCardId;
+    private Long receiverCardId;
     private BigDecimal amount;
     private Status status;
     private LocalDateTime transferDate;

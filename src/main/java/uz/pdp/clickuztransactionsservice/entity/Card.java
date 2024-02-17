@@ -20,7 +20,6 @@ public class Card {
     private String name;
     private String cardNumber;
     private String expiryDate;
-    @Enumerated(EnumType.STRING)
     private CardType type;
     private boolean isMain;
     private Byte cvv;

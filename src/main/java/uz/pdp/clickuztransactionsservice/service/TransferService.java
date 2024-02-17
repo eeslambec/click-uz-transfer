@@ -2,7 +2,6 @@ package uz.pdp.clickuztransactionsservice.service;
 
 import org.springframework.stereotype.Service;
 import uz.pdp.clickuztransactionsservice.entity.Transfer;
-import uz.pdp.clickuztransactionsservice.dto.TransferDto;
 import uz.pdp.clickuztransactionsservice.entity.enums.Status;
 
 import java.math.BigDecimal;
@@ -10,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface TransferService {
-    Transfer transfer(TransferDto transferDto);
+    Transfer transfer(Transfer transferDto);
     Transfer getById(Long id);
     List<Transfer> getByReceiverCardId(Long id);
     List<Transfer> getBySenderCardId(Long id);
