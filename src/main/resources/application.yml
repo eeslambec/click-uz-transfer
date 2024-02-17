@@ -10,16 +10,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-#  application:
-#    name: click-uz-transfers
+  application:
+    name: click-uz-transfers
   config:
     import: optional:configserver:http://localhost:8101
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://localhost:8741/eureka
+    service-url:
+      defaultZone: http://localhost:8741/eureka
 

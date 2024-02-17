@@ -3,6 +3,7 @@ package uz.pdp.clickuztransactionsservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import uz.pdp.clickuztransactionsservice.dto.SetBalanceDto;
 import uz.pdp.clickuztransactionsservice.entity.Card;
 import uz.pdp.clickuztransactionsservice.entity.Transfer;
@@ -16,8 +17,10 @@ import uz.pdp.clickuztransactionsservice.service.TransferService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class TransferServiceImpl implements TransferService {
     @Value("${click.uz.const.min}")
@@ -39,10 +42,8 @@ public class TransferServiceImpl implements TransferService {
             throw new NullOrEmptyException("Receiver ID");
         if (transfer.getAmount() == null)
             throw new NullOrEmptyException("Amount");
-        if (transfer.getAmount().compareTo(min) < 0)
-            throw new InvalidArgumentException("amount");
-        if (transfer.getAmount().compareTo(max) < 0)
-            throw new InvalidArgumentException("amount");
+        if (transfer.getSenderCardId().equals(transfer.getReceiverCardId()))
+            throw new InvalidArgumentException("Card Id");
         ResponseEntity<Card> senderProxyCardById = cardProxy.getById(transfer.getSenderCardId());
         ResponseEntity<Card> receiverProxyCardById = cardProxy.getById(transfer.getReceiverCardId());
         if (senderProxyCardById.getBody() == null)
@@ -50,20 +51,21 @@ public class TransferServiceImpl implements TransferService {
         if (receiverProxyCardById.getBody() == null)
             throw new NotFoundException("Receiver card");
         Card senderCard = senderProxyCardById.getBody();
-        Card receiverCard = senderProxyCardById.getBody();
-
+        Card receiverCard = receiverProxyCardById.getBody();
         BigDecimal commission = transfer.getAmount().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(this.commission));
         BigDecimal cashback = transfer.getAmount().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(this.cashback));
         Status status = Status.FAILED;
-        if (transfer.getAmount().add(commission).compareTo(senderCard.getBalance()) > 0)
-            throw new InvalidArgumentException("balance");
-        else{
+        if ((transfer.getAmount().compareTo(min) < 0
+                && transfer.getAmount().compareTo(max) > 0 &&
+                transfer.getAmount().add(commission).compareTo(senderCard.getBalance()) > 0)
+        ){
             status = Status.SUCCESS;
-            BigDecimal newBalance = senderCard.getBalance().subtract(transfer.getAmount().add(commission)).add(cashback);
+            BigDecimal newBalance = senderCard.getBalance().subtract(transfer.getAmount().add(commission));
+            newBalance = newBalance.add(cashback);
             cardProxy.setBalance(new SetBalanceDto(senderCard.getId(),newBalance));
-            cardProxy.setBalance(new SetBalanceDto(receiverCard.getId(),receiverCard.getBalance().add(newBalance)));
+            cardProxy.setBalance(new SetBalanceDto(receiverCard.getId(),receiverCard.getBalance().add(transfer.getAmount())));
         }
         return transferRepository.save(
                 Transfer.builder()
@@ -71,6 +73,7 @@ public class TransferServiceImpl implements TransferService {
                         .amount(transfer.getAmount())
                         .senderCardId(senderCard.getId())
                         .receiverCardId(receiverCard.getId())
+                        .transferDate(LocalDateTime.now())
                         .status(status)
                         .build()
         );

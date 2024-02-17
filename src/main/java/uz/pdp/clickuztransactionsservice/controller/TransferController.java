@@ -9,6 +9,7 @@ import uz.pdp.clickuztransactionsservice.service.TransferService;
 
 import java.math.BigDecimal;
 
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/transfer")
 public class TransferController {

@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import uz.pdp.clickuztransactionsservice.dto.SetBalanceDto;
 import uz.pdp.clickuztransactionsservice.entity.Card;
 
-@FeignClient(value = "click-uz-cards",url = "http://localhost:6060")
+@FeignClient(value = "click-uz-cards")
 public interface CardProxy {
-    @GetMapping("/{id}")
+    @GetMapping("/card/{id}")
     ResponseEntity<Card> getById(@PathVariable Long id);
-    @PostMapping("/b")
+    @PostMapping("/card/balance")
     void setBalance(@RequestBody SetBalanceDto setBalanceDto);
-
-    @GetMapping("/cardNumber")
-    ResponseEntity<Card> getByNumber(String number);
+    @GetMapping("/card/cardNumber/{cardNumber}")
+    ResponseEntity<Card> getByNumber(@PathVariable String cardNumber);
 }
