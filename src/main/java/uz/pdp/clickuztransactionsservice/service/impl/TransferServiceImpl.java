@@ -2,12 +2,13 @@ package uz.pdp.clickuztransactionsservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import uz.pdp.clickuztransactionsservice.dto.CustomResponseEntity;
 import uz.pdp.clickuztransactionsservice.dto.SetBalanceDto;
 import uz.pdp.clickuztransactionsservice.entity.Card;
 import uz.pdp.clickuztransactionsservice.entity.Transfer;
 import uz.pdp.clickuztransactionsservice.entity.enums.Status;
+import uz.pdp.clickuztransactionsservice.exception.BadRequestException;
 import uz.pdp.clickuztransactionsservice.exception.InvalidArgumentException;
 import uz.pdp.clickuztransactionsservice.exception.NotFoundException;
 import uz.pdp.clickuztransactionsservice.exception.NullOrEmptyException;
@@ -44,12 +45,12 @@ public class TransferServiceImpl implements TransferService {
             throw new NullOrEmptyException("Amount");
         if (transfer.getSenderCardId().equals(transfer.getReceiverCardId()))
             throw new InvalidArgumentException("Card Id");
-        ResponseEntity<Card> senderProxyCardById = cardProxy.getById(transfer.getSenderCardId());
-        ResponseEntity<Card> receiverProxyCardById = cardProxy.getById(transfer.getReceiverCardId());
+        CustomResponseEntity<Card> senderProxyCardById = cardProxy.getById(transfer.getSenderCardId());
+        CustomResponseEntity<Card> receiverProxyCardById = cardProxy.getById(transfer.getReceiverCardId());
         if (senderProxyCardById.getBody() == null)
-            throw new NotFoundException("Sender card");
+            throw new BadRequestException(senderProxyCardById.getErrorMessage());
         if (receiverProxyCardById.getBody() == null)
-            throw new NotFoundException("Receiver card");
+            throw new BadRequestException(senderProxyCardById.getErrorMessage());
         Card senderCard = senderProxyCardById.getBody();
         Card receiverCard = receiverProxyCardById.getBody();
         BigDecimal commission = transfer.getAmount().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
@@ -60,12 +61,12 @@ public class TransferServiceImpl implements TransferService {
         if ((transfer.getAmount().compareTo(min) < 0
                 && transfer.getAmount().compareTo(max) > 0 &&
                 transfer.getAmount().add(commission).compareTo(senderCard.getBalance()) > 0)
-        ){
+        ) {
             status = Status.SUCCESS;
             BigDecimal newBalance = senderCard.getBalance().subtract(transfer.getAmount().add(commission));
             newBalance = newBalance.add(cashback);
-            cardProxy.setBalance(new SetBalanceDto(senderCard.getId(),newBalance));
-            cardProxy.setBalance(new SetBalanceDto(receiverCard.getId(),receiverCard.getBalance().add(transfer.getAmount())));
+            cardProxy.setBalance(new SetBalanceDto(senderCard.getId(), newBalance));
+            cardProxy.setBalance(new SetBalanceDto(receiverCard.getId(), receiverCard.getBalance().add(transfer.getAmount())));
         }
         return transferRepository.save(
                 Transfer.builder()
@@ -129,22 +130,24 @@ public class TransferServiceImpl implements TransferService {
     public List<Transfer> getByReceiverCardNumber(String cardNumber) {
         if (isNullOrEmpty(cardNumber))
             throw new NullOrEmptyException("Card number");
-        ResponseEntity<Card> byNumber = cardProxy.getByNumber(cardNumber);
+        CustomResponseEntity<Card> byNumber = cardProxy.getByNumber(cardNumber);
         if (byNumber.getBody() == null)
-            throw new NullOrEmptyException("Card");
+            throw new BadRequestException(byNumber.getErrorMessage());
         Card card = byNumber.getBody();
         return transferRepository.findAllByReceiverCardId(card.getId());
     }
+
     @Override
     public List<Transfer> getBySenderCardNumber(String cardNumber) {
         if (isNullOrEmpty(cardNumber))
             throw new NullOrEmptyException("Card number");
-        ResponseEntity<Card> byNumber = cardProxy.getByNumber(cardNumber);
+        CustomResponseEntity<Card> byNumber = cardProxy.getByNumber(cardNumber);
         if (byNumber.getBody() == null)
-            throw new NullOrEmptyException("Card");
+            throw new BadRequestException(byNumber.getErrorMessage());
         Card card = byNumber.getBody();
         return transferRepository.findAllBySenderCardId(card.getId());
     }
+
     public boolean isNullOrEmpty(String s) {
         return s == null || s.trim().isEmpty();
     }

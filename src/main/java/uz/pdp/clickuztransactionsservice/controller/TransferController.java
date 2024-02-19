@@ -1,8 +1,13 @@
 package uz.pdp.clickuztransactionsservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import uz.pdp.clickuztransactionsservice.dto.CustomResponseEntity;
 import uz.pdp.clickuztransactionsservice.entity.Transfer;
 import uz.pdp.clickuztransactionsservice.entity.enums.Status;
 import uz.pdp.clickuztransactionsservice.service.TransferService;
@@ -15,39 +20,39 @@ import java.math.BigDecimal;
 public class TransferController {
     private final TransferService transferService;
     @PostMapping("/")
-    public ResponseEntity<?> transfer(@RequestBody Transfer transfer){
-        return ResponseEntity.ok(transferService.transfer(transfer));
+    public CustomResponseEntity<?> transfer(@RequestBody Transfer transfer){
+        return CustomResponseEntity.ok(transferService.transfer(transfer));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id){
-        return ResponseEntity.ok(transferService.getById(id));
+    public CustomResponseEntity<?> getById(@PathVariable Long id){
+        return CustomResponseEntity.ok(transferService.getById(id));
     }
     @GetMapping("/all")
-    public ResponseEntity<?> getAll(){
-        return ResponseEntity.ok(transferService.getAll());
+    public CustomResponseEntity<?> getAll(){
+        return CustomResponseEntity.ok(transferService.getAll());
     }
     @GetMapping("/cardId/receiver/{id}")
-    public ResponseEntity<?> getByReceiverCardId(@PathVariable Long id){
-        return ResponseEntity.ok(transferService.getByReceiverCardId(id));
+    public CustomResponseEntity<?> getByReceiverCardId(@PathVariable Long id){
+        return CustomResponseEntity.ok(transferService.getByReceiverCardId(id));
     }
     @GetMapping("/cardNumber/receiver/{number}")
-    public ResponseEntity<?> getByReceiverCardNumber(@PathVariable String number){
-        return ResponseEntity.ok(transferService.getByReceiverCardNumber(number));
+    public CustomResponseEntity<?> getByReceiverCardNumber(@PathVariable String number){
+        return CustomResponseEntity.ok(transferService.getByReceiverCardNumber(number));
     }
     @GetMapping("/cardId/sender/{id}")
-    public ResponseEntity<?> getBySenderCardId(@PathVariable Long id){
-        return ResponseEntity.ok(transferService.getBySenderCardId(id));
+    public CustomResponseEntity<?> getBySenderCardId(@PathVariable Long id){
+        return CustomResponseEntity.ok(transferService.getBySenderCardId(id));
     }
     @GetMapping("/cardNumber/sender/{number}")
-    public ResponseEntity<?> getBySenderCardNumber(@PathVariable String number){
-        return ResponseEntity.ok(transferService.getBySenderCardNumber(number));
+    public CustomResponseEntity<?> getBySenderCardNumber(@PathVariable String number){
+        return CustomResponseEntity.ok(transferService.getBySenderCardNumber(number));
     }
     @GetMapping("/status/{status}")
-    public ResponseEntity<?> getByStatus(@PathVariable Status status){
-        return ResponseEntity.ok(transferService.getAllByStatus(status));
+    public CustomResponseEntity<?> getByStatus(@PathVariable Status status){
+        return CustomResponseEntity.ok(transferService.getAllByStatus(status));
     }
     @GetMapping("/amount/{amount}")
-    public ResponseEntity<?> getByAmount(@PathVariable BigDecimal amount){
-        return ResponseEntity.ok(transferService.getAllByAmount(amount));
+    public CustomResponseEntity<?> getByAmount(@PathVariable BigDecimal amount){
+        return CustomResponseEntity.ok(transferService.getAllByAmount(amount));
     }
 }
